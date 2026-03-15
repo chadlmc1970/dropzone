@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { loadTrack } from '../../store/decksSlice';
-import { Track } from '../../types';
+import type { Track } from '../../types';
 import apiClient from '../../services/api';
 
 interface TrackSearchProps {

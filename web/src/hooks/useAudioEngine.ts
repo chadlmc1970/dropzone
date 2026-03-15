@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import audioEngine from '../services/audioEngine';
 import { useSelector } from 'react-redux';
-import { RootState } from '../store';
+import type { RootState } from '../store';
 
 export const useAudioEngine = () => {
   const isInitialized = useRef(false);

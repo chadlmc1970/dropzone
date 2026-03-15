@@ -21,9 +21,9 @@ class AudioEngine {
     high: BiquadFilterNode | null;
   } = { low: null, mid: null, high: null };
 
-  // Effects
-  private reverbNode: ConvolverNode | null = null;
-  private delayNode: DelayNode | null = null;
+  // Effects (reserved for future use)
+  // private reverbNode: ConvolverNode | null = null;
+  // private delayNode: DelayNode | null = null;
 
   private constructor() {}
 

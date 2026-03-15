@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UIState, MixingMode } from '../types';
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
+import type { UIState, MixingMode } from '../types';
 
 const initialState: UIState = {
   mode: 'manual',

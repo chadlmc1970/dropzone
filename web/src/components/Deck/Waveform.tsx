@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { Track } from '../../types';
+import type { Track } from '../../types';
 
 interface WaveformProps {
   track: Track | null;

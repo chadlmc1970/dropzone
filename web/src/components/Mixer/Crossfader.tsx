@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store';
+import type { RootState } from '../../store';
 import { setCrossfader } from '../../store/mixerSlice';
 
 const Crossfader: React.FC = () => {

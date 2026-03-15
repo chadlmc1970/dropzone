@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from '../../store';
+import type { RootState } from '../../store';
 import { togglePlayPause } from '../../store/decksSlice';
 
 interface DeckProps {

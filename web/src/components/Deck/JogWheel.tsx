@@ -11,7 +11,7 @@ const JogWheel: React.FC<JogWheelProps> = ({ deck, isPlaying, onScratch }) => {
   const [isDragging, setIsDragging] = useState(false);
   const wheelRef = useRef<HTMLDivElement>(null);
   const lastAngle = useRef<number>(0);
-  const animationRef = useRef<number>();
+  const animationRef = useRef<number | null>(null);
 
   const color = deck === 'A' ? 'cyan' : 'orange';
 
