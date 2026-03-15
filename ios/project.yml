@@ -1,0 +1,27 @@
+name: DropZone
+options:
+  bundleIdPrefix: com.dropzone
+  deploymentTarget:
+    iOS: "15.0"
+settings:
+  SWIFT_VERSION: "5.9"
+targets:
+  DropZone:
+    type: application
+    platform: iOS
+    sources:
+      - DropZone
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.dropzone.DropZone
+      INFOPLIST_FILE: DropZone/Info.plist
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    scheme:
+      testTargets:
+        - DropZoneTests
+  DropZoneTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - DropZoneTests
+    dependencies:
+      - target: DropZone
