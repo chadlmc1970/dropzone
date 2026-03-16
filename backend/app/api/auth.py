@@ -1,9 +1,10 @@
 # backend/app/api/auth.py
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from datetime import datetime, timedelta
-from jose import jwt
+from jose import jwt, JWTError
 
 from backend.app.db.session import get_db
 from backend.app.db.models import User
@@ -12,6 +13,7 @@ from backend.app.config import get_settings
 
 settings = get_settings()
 router = APIRouter()
+security = HTTPBearer()
 
 # Initialize Auth0 service
 auth0_service = Auth0Service(
@@ -47,6 +49,63 @@ def create_access_token(user_id: int, auth0_id: str, email: str) -> str:
         "exp": expire
     }
     return jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
+
+
+def get_current_user(
+    db: Session = Depends(get_db),
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    token: str | None = None
+) -> User:
+    """
+    JWT middleware dependency to extract and validate current user from token.
+    Used to protect endpoints that require authentication.
+
+    Args:
+        db: Database session
+        credentials: HTTP Authorization header (injected by FastAPI)
+        token: Optional direct token param (for testing only)
+    """
+    # Handle both direct token param (for testing) and credentials from header
+    jwt_token = token if token is not None else (credentials.credentials if credentials else None)
+
+    if not jwt_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authentication token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    try:
+        # Decode JWT token
+        payload = jwt.decode(jwt_token, settings.secret_key, algorithms=["HS256"])
+        user_id: str = payload.get("sub")
+
+        if user_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token payload",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    # Get user from database
+    user = db.query(User).filter(User.id == int(user_id)).first()
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    return user
+
 
 @router.post("/callback", response_model=AuthResponse)
 def auth_callback(
@@ -106,16 +165,19 @@ def auth_callback(
 
 @router.get("/me", response_model=UserResponse)
 def get_current_user_endpoint(
+    current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """
     Get current authenticated user.
-    TODO: Add JWT authentication dependency after Task 8
+    Protected by JWT authentication middleware.
     """
-    # Placeholder - will be protected by JWT middleware in Task 8
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Authentication middleware not yet implemented"
+    return UserResponse(
+        id=current_user.id,
+        auth0_id=current_user.auth0_id,
+        email=current_user.email,
+        display_name=current_user.display_name,
+        spotify_id=current_user.spotify_id
     )
 
 @router.post("/logout")
