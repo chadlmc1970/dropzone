@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import "./TeamDashboard.css";
 
 interface TeamMember {
   name: string;
