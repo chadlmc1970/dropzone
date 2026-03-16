@@ -13,6 +13,7 @@ const initialDeckState: DeckState = {
   loopStart: null,
   loopEnd: null,
   loopEnabled: false,
+  hotCues: Array(8).fill(false),
 };
 
 interface DecksState {
@@ -70,6 +71,10 @@ const decksSlice = createSlice({
       state[deckKey].loopEnd = null;
       state[deckKey].loopEnabled = false;
     },
+    toggleHotCue: (state, action: PayloadAction<{ deck: 'A' | 'B'; index: number }>) => {
+      const deckKey = `deck${action.payload.deck}` as 'deckA' | 'deckB';
+      state[deckKey].hotCues[action.payload.index] = !state[deckKey].hotCues[action.payload.index];
+    },
   },
 });
 
@@ -83,6 +88,7 @@ export const {
   addCuePoint,
   setLoop,
   clearLoop,
+  toggleHotCue,
 } = decksSlice.actions;
 
 export default decksSlice.reducer;

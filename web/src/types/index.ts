@@ -21,6 +21,7 @@ export interface DeckState {
   loopStart: number | null;
   loopEnd: number | null;
   loopEnabled: boolean;
+  hotCues: boolean[]; // 8 hot cue active states
 }
 
 export interface MixerState {
