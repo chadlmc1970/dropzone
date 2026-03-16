@@ -16,6 +16,8 @@ services:
     envVars:
       - key: DATABASE_URL
         sync: false  # Set manually in Render Dashboard
+      - key: SECRET_KEY
+        generateValue: true  # Auto-generate secure secret
       - key: JWT_SECRET_KEY
         generateValue: true  # Auto-generate secure secret
       - key: AUTH0_DOMAIN
@@ -30,6 +32,8 @@ services:
         sync: false
       - key: SPOTIFY_CLIENT_SECRET
         sync: false
+      - key: SPOTIFY_REDIRECT_URI
+        value: https://dropzone-api.onrender.com/api/auth/callback/spotify
       - key: CORS_ORIGINS
         value: https://dropzone-dashboard.onrender.com
       - key: FRONTEND_URL
