@@ -4,7 +4,7 @@ import SwiftUI
 struct DropZoneApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            DJControllerView()
         }
     }
 }
