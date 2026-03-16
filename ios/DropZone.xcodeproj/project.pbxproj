@@ -13,6 +13,7 @@
 		2874A28144153B0BD3A36088 /* DropZoneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F013A798D8DB9FF9AA7FE8 /* DropZoneTests.swift */; };
 		3981DF975A7923A8288EDFDB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F04495EEBCEA470DBA8A44B /* ContentView.swift */; };
 		4AB0B6FEE0E4DE712260CFA4 /* AudioProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EEAC80DD0C67382BFB94BB /* AudioProcessor.swift */; };
+		5DE4249818797C48DD4EB78F /* JogWheelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2729D598B4E12AF5A4F0F14 /* JogWheelView.swift */; };
 		6E11B0FDC9AEA2D1C3582F9A /* WaveformView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29AB3B437FA3DCFEBDAE5C0F /* WaveformView.swift */; };
 		7B566B95817BB822FBDCD4B5 /* DeckView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8BAC6DBB1C888F1A2DA9A5 /* DeckView.swift */; };
 		8D5C1E277C886843C7205690 /* DropZoneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D857B66CD513D064BE12B9E /* DropZoneApp.swift */; };
@@ -59,6 +60,7 @@
 		C31BD0FF30FF3A9BC910A5AE /* SpotifyViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyViewModel.swift; sourceTree = "<group>"; };
 		D8F013A798D8DB9FF9AA7FE8 /* DropZoneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropZoneTests.swift; sourceTree = "<group>"; };
 		DEAF72E0C8EA04105927B703 /* AudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngine.swift; sourceTree = "<group>"; };
+		E2729D598B4E12AF5A4F0F14 /* JogWheelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JogWheelView.swift; sourceTree = "<group>"; };
 		F2DE14BE80DEE72FEDBB9F7C /* MixerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MixerView.swift; sourceTree = "<group>"; };
 		F9F48F0610E33E5FFE5C2B53 /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModels.swift; sourceTree = "<group>"; };
 		FB4B1D4A246DF3284425B118 /* Preset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preset.swift; sourceTree = "<group>"; };
@@ -154,6 +156,7 @@
 				087E2CB8C40759583F4B2688 /* .gitkeep */,
 				AC8BAC6DBB1C888F1A2DA9A5 /* DeckView.swift */,
 				B48C7F5C2E5B33BB3918246C /* DJControllerView.swift */,
+				E2729D598B4E12AF5A4F0F14 /* JogWheelView.swift */,
 				F2DE14BE80DEE72FEDBB9F7C /* MixerView.swift */,
 				29AB3B437FA3DCFEBDAE5C0F /* WaveformView.swift */,
 			);
@@ -251,6 +254,7 @@
 				1360E6686089F3543A07375F /* DJControllerViewModel.swift in Sources */,
 				7B566B95817BB822FBDCD4B5 /* DeckView.swift in Sources */,
 				8D5C1E277C886843C7205690 /* DropZoneApp.swift in Sources */,
+				5DE4249818797C48DD4EB78F /* JogWheelView.swift in Sources */,
 				E45DF178F84A3BFB03DE64AC /* Mix.swift in Sources */,
 				1C2ED0C854691A4789903C1E /* MixerView.swift in Sources */,
 				96568B904BC42157F4594B91 /* Preset.swift in Sources */,
