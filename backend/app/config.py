@@ -1,9 +1,14 @@
 # backend/app/config.py
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 from functools import lru_cache
 from pathlib import Path
 
 class Settings(BaseSettings):
+    model_config = ConfigDict(
+        env_file=Path(__file__).parent.parent / ".env"
+    )
+
     # Database
     database_url: str
 
@@ -22,9 +27,6 @@ class Settings(BaseSettings):
     frontend_url: str
     secret_key: str
     cors_origins: str
-
-    class Config:
-        env_file = Path(__file__).parent.parent / ".env"
 
 @lru_cache()
 def get_settings():
