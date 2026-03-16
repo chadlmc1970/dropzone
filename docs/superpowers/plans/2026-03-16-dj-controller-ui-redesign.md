@@ -663,7 +663,7 @@ Replace entire file content:
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '../../store';
-import { setEQ } from '../../store/mixerSlice';
+import { setEQ, setDeckVolume } from '../../store/mixerSlice';
 import RotaryKnob from '../shared/RotaryKnob';
 import VerticalFader from '../shared/VerticalFader';
 
@@ -676,6 +676,9 @@ const ChannelStrip: React.FC<ChannelStripProps> = ({ deck }) => {
   const eq = useSelector((state: RootState) =>
     deck === 'A' ? state.mixer.deckAEQ : state.mixer.deckBEQ
   );
+  const volume = useSelector((state: RootState) =>
+    deck === 'A' ? state.mixer.deckAVolume : state.mixer.deckBVolume
+  );
 
   const color = deck === 'A' ? 'cyan' : 'orange';
 
@@ -683,11 +686,8 @@ const ChannelStrip: React.FC<ChannelStripProps> = ({ deck }) => {
     dispatch(setEQ({ deck, band, value }));
   };
 
-  // Note: Channel volume not yet in Redux state - will use master volume temporarily
-  const masterVolume = useSelector((state: RootState) => state.mixer.masterVolume);
   const handleVolumeChange = (value: number) => {
-    // TODO: Add per-channel volume to Redux
-    console.log(`Channel ${deck} volume:`, value);
+    dispatch(setDeckVolume({ deck, volume: value }));
   };
 
   return (
@@ -730,7 +730,7 @@ const ChannelStrip: React.FC<ChannelStripProps> = ({ deck }) => {
 
       {/* Channel Volume Fader */}
       <VerticalFader
-        value={masterVolume}
+        value={volume}
         onChange={handleVolumeChange}
         label="VOLUME"
         color={color}
@@ -910,7 +910,7 @@ import RotaryKnob from '../shared/RotaryKnob';
 
 const EffectsRack: React.FC = () => {
   const dispatch = useDispatch();
-  const effects = useSelector((state: RootState) => state.mixer.effects);
+  const effects = useSelector((state: RootState) => state.mixer.effectsRack);
 
   const handleEffectChange = (
     effect: 'reverb' | 'delay' | 'filter' | 'echo',
