@@ -33,15 +33,15 @@ const Deck: React.FC<DeckProps> = ({ deck }) => {
         {deckState.track ? (
           <div>
             <h3 className="text-white font-semibold text-lg truncate">{deckState.track.name}</h3>
-            <p className="text-gray-400 text-sm truncate">{deckState.track.artist}</p>
+            <p className="text-gray-200 text-sm truncate">{deckState.track.artist}</p>
             <div className="flex gap-3 mt-2">
               {deckState.track.bpm && (
-                <span className={`text-${color}-400 text-xs font-mono`}>
+                <span className={`text-${color}-300 text-xs font-mono font-semibold`}>
                   {deckState.track.bpm} BPM
                 </span>
               )}
               {deckState.track.key && (
-                <span className={`text-${color}-400 text-xs font-mono`}>
+                <span className={`text-${color}-300 text-xs font-mono font-semibold`}>
                   {deckState.track.key}
                 </span>
               )}
@@ -49,14 +49,14 @@ const Deck: React.FC<DeckProps> = ({ deck }) => {
           </div>
         ) : (
           <div className="flex items-center justify-center h-full">
-            <p className="text-gray-600 text-sm">No track loaded</p>
+            <p className="text-gray-400 text-sm font-semibold">No track loaded</p>
           </div>
         )}
       </div>
 
       {/* Waveform Placeholder */}
-      <div className="bg-black rounded-lg h-24 mb-4 flex items-center justify-center">
-        <span className="text-gray-700 text-xs">WAVEFORM</span>
+      <div className="bg-black rounded-lg h-24 mb-4 flex items-center justify-center border border-gray-700">
+        <span className="text-gray-400 text-xs font-semibold tracking-wider">WAVEFORM</span>
       </div>
 
       {/* Jog Wheel Placeholder */}

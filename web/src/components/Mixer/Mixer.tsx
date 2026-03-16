@@ -35,7 +35,7 @@ const Mixer: React.FC = () => {
           {/* EQ Knobs */}
           <div className="space-y-2">
             <div className="text-center">
-              <label className="text-xs text-gray-500 block mb-1">HIGH</label>
+              <label className="text-xs text-gray-300 block mb-1 font-semibold">HIGH</label>
               <input
                 type="range"
                 min="-12"
@@ -45,11 +45,11 @@ const Mixer: React.FC = () => {
                 onChange={(e) => handleEQChange('A', 'high', parseFloat(e.target.value))}
                 className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
               />
-              <span className="text-xs text-cyan-400">{mixer.deckAEQ.high.toFixed(1)} dB</span>
+              <span className="text-xs text-cyan-300 font-semibold">{mixer.deckAEQ.high.toFixed(1)} dB</span>
             </div>
 
             <div className="text-center">
-              <label className="text-xs text-gray-500 block mb-1">MID</label>
+              <label className="text-xs text-gray-300 block mb-1 font-semibold">MID</label>
               <input
                 type="range"
                 min="-12"
@@ -59,11 +59,11 @@ const Mixer: React.FC = () => {
                 onChange={(e) => handleEQChange('A', 'mid', parseFloat(e.target.value))}
                 className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
               />
-              <span className="text-xs text-cyan-400">{mixer.deckAEQ.mid.toFixed(1)} dB</span>
+              <span className="text-xs text-cyan-300 font-semibold">{mixer.deckAEQ.mid.toFixed(1)} dB</span>
             </div>
 
             <div className="text-center">
-              <label className="text-xs text-gray-500 block mb-1">LOW</label>
+              <label className="text-xs text-gray-300 block mb-1 font-semibold">LOW</label>
               <input
                 type="range"
                 min="-12"
@@ -73,7 +73,7 @@ const Mixer: React.FC = () => {
                 onChange={(e) => handleEQChange('A', 'low', parseFloat(e.target.value))}
                 className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500"
               />
-              <span className="text-xs text-cyan-400">{mixer.deckAEQ.low.toFixed(1)} dB</span>
+              <span className="text-xs text-cyan-300 font-semibold">{mixer.deckAEQ.low.toFixed(1)} dB</span>
             </div>
           </div>
         </div>
