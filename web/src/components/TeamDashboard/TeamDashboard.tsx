@@ -77,7 +77,7 @@ export default function TeamDashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="team-dashboard loading">
         <div className="spinner"></div>
