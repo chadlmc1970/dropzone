@@ -72,8 +72,11 @@ const decksSlice = createSlice({
       state[deckKey].loopEnabled = false;
     },
     toggleHotCue: (state, action: PayloadAction<{ deck: 'A' | 'B'; index: number }>) => {
-      const deckKey = `deck${action.payload.deck}` as 'deckA' | 'deckB';
-      state[deckKey].hotCues[action.payload.index] = !state[deckKey].hotCues[action.payload.index];
+      const { deck, index } = action.payload;
+      if (index < 0 || index >= 8) return; // Early return for invalid index
+
+      const deckKey = `deck${deck}` as 'deckA' | 'deckB';
+      state[deckKey].hotCues[index] = !state[deckKey].hotCues[index];
     },
   },
 });
