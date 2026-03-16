@@ -33,7 +33,9 @@ Transform the DropZone web UI from basic horizontal sliders to a professional DJ
   - Expand performance pads from 4 to 8 (4×2 grid)
 - Refactor [Mixer.tsx](../../web/src/components/Mixer/Mixer.tsx):
   - Remove inline EQ knobs (lines 36-78, 86-128) and import/use [ChannelStrip.tsx](../../web/src/components/Mixer/ChannelStrip.tsx) × 2 (Deck A/B)
+    - Note: Current Mixer.tsx doesn't have per-channel volume faders, but ChannelStrip.tsx needs to include one (added in Phase 2)
   - Remove inline crossfader (lines 133-153) and import/use [Crossfader.tsx](../../web/src/components/Mixer/Crossfader.tsx)
+    - Note: Crossfader remains horizontal (not vertical), just styled with hardware aesthetics
   - Remove inline effects buttons (lines 175-187) and import/use [EffectsRack.tsx](../../web/src/components/Mixer/EffectsRack.tsx)
 - All duplicate inline implementations must be removed
 
@@ -113,7 +115,7 @@ interface VerticalFaderProps {
   value: number;           // 0-1 range
   onChange: (value: number) => void;
   label: string;
-  color?: string;
+  color?: 'cyan' | 'orange' | 'purple';  // Brand color (default: 'purple')
   height?: number;         // Pixel height (default 120px)
 }
 ```
@@ -150,8 +152,14 @@ interface PerformancePadProps {
 **State Management:**
 Performance pad active states will be added to Redux `decksSlice.ts`:
 ```typescript
-// Add to DeckState interface
+// Add to DeckState interface (web/src/store/decksSlice.ts)
 hotCues: boolean[];  // Array of 8 booleans for pad active states
+
+// Update initialDeckState
+const initialDeckState: DeckState = {
+  // ... existing fields
+  hotCues: Array(8).fill(false),  // NEW: Initialize 8 pads to inactive
+};
 
 // Add action
 toggleHotCue: (state, action: PayloadAction<{ deck: 'A' | 'B', index: number }>) => {
@@ -170,8 +178,19 @@ toggleHotCue: (state, action: PayloadAction<{ deck: 'A' | 'B', index: number }>)
 - Background: `bg-{color}-600`
 - Border: `border-2 border-{color}-400`
 - Text: `text-white font-bold`
-- Shadow: `shadow-[0_0_15px_rgba({color},0.6)]` (LED glow)
+- Shadow: LED glow effect (implementation note: map color prop to shadow class)
+  - cyan: `shadow-[0_0_15px_rgba(6,182,212,0.6)]`
+  - orange: `shadow-[0_0_15px_rgba(249,115,22,0.6)]`
 - Transform: `scale-95` on press
+
+**Color Mapping Logic (Required):**
+```tsx
+const getShadowClass = (color: 'cyan' | 'orange') => {
+  return color === 'cyan'
+    ? 'shadow-[0_0_15px_rgba(6,182,212,0.6)]'
+    : 'shadow-[0_0_15px_rgba(249,115,22,0.6)]';
+};
+```
 
 **Hover State:**
 - Background: `bg-gray-700` (inactive) or `bg-{color}-500` (active)
@@ -211,10 +230,13 @@ Two distinct touch zones detected via mouse/touch position relative to center:
 
 **Zone Detection:**
 ```typescript
+// Jog wheel radius = 120px (240px diameter ÷ 2)
+// Center platter radius = 70px (140px diameter ÷ 2)
 const distanceFromCenter = Math.sqrt(
   Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2)
 );
-const isOuterRing = distanceFromCenter > 100;  // pixels
+const isCenterPlatter = distanceFromCenter <= 70;  // Center scratch area
+const isOuterRing = distanceFromCenter > 70 && distanceFromCenter <= 120;  // Pitch bend ring
 ```
 
 ## Layout Specifications
@@ -365,17 +387,17 @@ Row 2: [Mixer (full width)]
 **Tailwind Implementation:**
 ```tsx
 <div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6">
-  <div className="md:col-span-1">{/* Deck A */}</div>
-  <div className="md:col-span-1 lg:order-2">{/* Deck B */}</div>
-  <div className="md:col-span-2 lg:col-span-1 lg:order-2">{/* Mixer */}</div>
+  <div className="md:col-span-1 lg:order-1">{/* Deck A */}</div>
+  <div className="md:col-span-2 lg:col-span-1 lg:order-2">{/* Mixer - center column on desktop, full width on tablet */}</div>
+  <div className="md:col-span-1 lg:order-3">{/* Deck B */}</div>
 </div>
 ```
 
-**Reduced Control Sizes:**
-- Jog wheels: 180px (from 240px)
-- Vertical faders: 100px tall (from 120px)
-- Rotary knobs: 50px diameter (from 60px)
-- Performance pads: Maintain 4×2 grid, scale down to fit
+**Reduced Control Sizes (Tailwind Responsive Classes):**
+- Jog wheels: `w-60 h-60 md:w-45 md:h-45 lg:w-60 lg:h-60` (240px → 180px on tablet)
+- Vertical faders: `h-30 md:h-25 lg:h-30` (120px → 100px on tablet)
+- Rotary knobs: `w-15 h-15 md:w-12.5 md:h-12.5 lg:w-15 lg:h-15` (60px → 50px on tablet)
+- Performance pads: Maintain 4×2 grid, use responsive padding/gap classes
 
 ### Mobile (<768px)
 **Component:** Create `web/src/components/MobileFallback/MobileFallback.tsx`
@@ -387,7 +409,15 @@ Row 2: [Mixer (full width)]
 
 **Conditional Rendering in DJController.tsx:**
 ```tsx
-const isMobile = window.innerWidth < 768;
+import { useState, useEffect } from 'react';
+
+const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+useEffect(() => {
+  const handleResize = () => setIsMobile(window.innerWidth < 768);
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+}, []);
 
 return isMobile ? (
   <MobileFallback />
@@ -399,10 +429,26 @@ return isMobile ? (
 ```
 
 **MobileFallback Controls:**
-- Deck A: Play/Pause button
-- Deck B: Play/Pause button
-- Master Volume: Horizontal slider
+- Deck A: Play/Pause button (reads `state.decks.deckA.isPlaying`, dispatches `togglePlayPause('A')`)
+- Deck B: Play/Pause button (reads `state.decks.deckB.isPlaying`, dispatches `togglePlayPause('B')`)
+- Master Volume: Horizontal slider (reads `state.mixer.masterVolume`, dispatches `setMasterVolume(value)`)
 - Message: "🎧 Desktop Browser Recommended - For the full DJ controller experience, please open DropZone on a desktop or laptop."
+
+**Redux Integration Example:**
+```tsx
+import { useSelector, useDispatch } from 'react-redux';
+import { togglePlayPause } from '../../store/decksSlice';
+import { setMasterVolume } from '../../store/mixerSlice';
+import type { RootState } from '../../store';
+
+const MobileFallback: React.FC = () => {
+  const dispatch = useDispatch();
+  const deckAPlaying = useSelector((state: RootState) => state.decks.deckA.isPlaying);
+  const deckBPlaying = useSelector((state: RootState) => state.decks.deckB.isPlaying);
+  const masterVolume = useSelector((state: RootState) => state.mixer.masterVolume);
+  // ... component implementation
+};
+```
 
 ## Implementation Details
 
@@ -415,9 +461,14 @@ return isMobile ? (
    - Add document-level mousemove and mouseup listeners
 
 2. On mousemove (if isDragging):
-   - Calculate angle: `atan2(mouseY - centerY, mouseX - centerX)`
-   - Convert angle to 0-270° range (leave 90° gap at bottom)
-   - Map angle to value range: `value = min + (angle / 270) * (max - min)`
+   - Calculate raw angle: `atan2(mouseY - centerY, mouseX - centerX)` (radians, -π to π)
+   - Convert to degrees: `degrees = (angle * 180 / Math.PI + 360) % 360`
+   - Offset to start at 12 o'clock (top): `adjustedAngle = (degrees + 90) % 360`
+   - Map 135° (bottom-left) to 45° (bottom-right) as 0-270° usable range
+     - If adjustedAngle between 135° and 360°: `usableAngle = adjustedAngle - 135`
+     - If adjustedAngle between 0° and 45°: `usableAngle = adjustedAngle + 225`
+     - Else: clamp to nearest edge (0° or 270°)
+   - Map to value: `value = min + (usableAngle / 270) * (max - min)`
    - Call onChange with clamped value
 
 3. On mouseup OR mouseleave (from document):
@@ -425,12 +476,20 @@ return isMobile ? (
    - Remove document-level listeners
    - Persist final value
 
+4. Component cleanup (useEffect return):
+   - Remove document-level listeners if component unmounts while dragging
+
+**Angle Convention:**
+- 0° (12 o'clock / top) = minimum value
+- 270° (clockwise rotation to 9 o'clock) = maximum value
+- 90° gap at bottom (between 4:30 and 7:30) is inactive zone
+
 **Edge Cases:**
 - Clamp values to min/max range before calling onChange
-- Handle angle wraparound at 0°/360° by normalizing to [0, 2π]
 - Prevent NaN from division by zero (check `max !== min`)
 - Mouse leaves browser window during drag: Document-level mouseup listener catches this
 - Touch events: Use same algorithm with touchmove/touchend events
+- Memory leak prevention: Cleanup listeners in useEffect return function
 
 ### State Management
 
@@ -563,6 +622,8 @@ return isMobile ? (
 - [ ] No performance issues (60fps for animations)
 - [ ] Jog wheel zone detection works (outer ring vs center platter)
 - [ ] Performance pads toggle active state (8 per deck)
+- [ ] EQ knobs use correct range (-12 to +12 dB) with unit label
+- [ ] Responsive layout works: Desktop (3-col) → Tablet (2-col stacked) → Mobile (fallback)
 
 ### Code Quality
 - [ ] No duplicate inline implementations (use dedicated components)
