@@ -10,11 +10,13 @@
 		019C5B18ACB73002A719810D /* Track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46E1FAED77A78C73ED4E8EA8 /* Track.swift */; };
 		2874A28144153B0BD3A36088 /* DropZoneTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8F013A798D8DB9FF9AA7FE8 /* DropZoneTests.swift */; };
 		3981DF975A7923A8288EDFDB /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F04495EEBCEA470DBA8A44B /* ContentView.swift */; };
+		4AB0B6FEE0E4DE712260CFA4 /* AudioProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58EEAC80DD0C67382BFB94BB /* AudioProcessor.swift */; };
 		8D5C1E277C886843C7205690 /* DropZoneApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D857B66CD513D064BE12B9E /* DropZoneApp.swift */; };
 		96568B904BC42157F4594B91 /* Preset.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB4B1D4A246DF3284425B118 /* Preset.swift */; };
 		A56B474A1648E057E1A8B6B4 /* SpotifyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6346E174398B3CDD9BBAAF /* SpotifyService.swift */; };
 		B4A0E4042C7D61C4463BCFB6 /* APIModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9F48F0610E33E5FFE5C2B53 /* APIModels.swift */; };
 		E45DF178F84A3BFB03DE64AC /* Mix.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A68D0749C11B6BD2238B2EB /* Mix.swift */; };
+		F8E983851CFA355CF3BDCBD8 /* AudioEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEAF72E0C8EA04105927B703 /* AudioEngine.swift */; };
 		FB6F8D6CC225D684CF131A2D /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C1E8B5EFE556BAAD0B4728 /* APIClient.swift */; };
 /* End PBXBuildFile section */
 
@@ -34,6 +36,7 @@
 		1D857B66CD513D064BE12B9E /* DropZoneApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropZoneApp.swift; sourceTree = "<group>"; };
 		1EDB5A44EF654F232DD507ED /* .gitkeep */ = {isa = PBXFileReference; path = .gitkeep; sourceTree = "<group>"; };
 		46E1FAED77A78C73ED4E8EA8 /* Track.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Track.swift; sourceTree = "<group>"; };
+		58EEAC80DD0C67382BFB94BB /* AudioProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioProcessor.swift; sourceTree = "<group>"; };
 		5A68D0749C11B6BD2238B2EB /* Mix.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mix.swift; sourceTree = "<group>"; };
 		6859CE8F64D4D48F86BF392A /* DropZone.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DropZone.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6D0068C34EFFA1208B42604E /* DropZoneTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = DropZoneTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,6 +47,7 @@
 		A1C1E8B5EFE556BAAD0B4728 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		BF6346E174398B3CDD9BBAAF /* SpotifyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyService.swift; sourceTree = "<group>"; };
 		D8F013A798D8DB9FF9AA7FE8 /* DropZoneTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DropZoneTests.swift; sourceTree = "<group>"; };
+		DEAF72E0C8EA04105927B703 /* AudioEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioEngine.swift; sourceTree = "<group>"; };
 		F9F48F0610E33E5FFE5C2B53 /* APIModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIModels.swift; sourceTree = "<group>"; };
 		FB4B1D4A246DF3284425B118 /* Preset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preset.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -71,6 +75,7 @@
 			children = (
 				76F55FD432BFA6E6C6BF4F60 /* .gitkeep */,
 				A1C1E8B5EFE556BAAD0B4728 /* APIClient.swift */,
+				DEAF72E0C8EA04105927B703 /* AudioEngine.swift */,
 				BF6346E174398B3CDD9BBAAF /* SpotifyService.swift */,
 			);
 			path = Services;
@@ -115,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				8FD2F6123ED6B4CF3BDF2BEF /* .gitkeep */,
+				58EEAC80DD0C67382BFB94BB /* AudioProcessor.swift */,
 			);
 			path = Audio;
 			sourceTree = "<group>";
@@ -220,6 +226,8 @@
 			files = (
 				FB6F8D6CC225D684CF131A2D /* APIClient.swift in Sources */,
 				B4A0E4042C7D61C4463BCFB6 /* APIModels.swift in Sources */,
+				F8E983851CFA355CF3BDCBD8 /* AudioEngine.swift in Sources */,
+				4AB0B6FEE0E4DE712260CFA4 /* AudioProcessor.swift in Sources */,
 				3981DF975A7923A8288EDFDB /* ContentView.swift in Sources */,
 				8D5C1E277C886843C7205690 /* DropZoneApp.swift in Sources */,
 				E45DF178F84A3BFB03DE64AC /* Mix.swift in Sources */,
