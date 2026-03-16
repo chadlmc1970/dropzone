@@ -12,11 +12,20 @@ const Crossfader: React.FC = () => {
   };
 
   return (
-    <div className="space-y-2">
-      <h3 className="text-purple-400 text-sm font-bold text-center">CROSSFADER</h3>
-      <div className="flex items-center gap-2">
+    <div className="py-4">
+      <h3 className="text-purple-400 text-sm font-bold text-center mb-3 uppercase tracking-wider">
+        CROSSFADER
+      </h3>
+
+      {/* Crossfader track */}
+      <div className="flex items-center gap-3 px-4">
         <span className="text-cyan-400 text-xs font-bold">A</span>
-        <div className="flex-1 relative">
+
+        <div className="relative flex-1">
+          {/* Track background */}
+          <div className="h-4 bg-gradient-to-b from-black to-gray-900 shadow-inner border border-gray-600 rounded-full" />
+
+          {/* HTML range input overlay */}
           <input
             type="range"
             min="0"
@@ -24,23 +33,43 @@ const Crossfader: React.FC = () => {
             step="0.01"
             value={position}
             onChange={handleChange}
-            className="w-full h-3 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+            className="absolute inset-0 w-full h-4 appearance-none bg-transparent cursor-pointer"
             style={{
-              background: `linear-gradient(to right,
-                #06b6d4 0%,
-                #06b6d4 ${position * 50}%,
-                #9333ea ${position * 50}%,
-                #9333ea ${position * 100}%,
-                #f97316 ${position * 100}%,
-                #f97316 100%)`,
+              WebkitAppearance: 'none',
             }}
           />
+
+          <style>{`
+            input[type="range"]::-webkit-slider-thumb {
+              appearance: none;
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: linear-gradient(to bottom, rgb(75, 85, 99), rgb(31, 41, 55));
+              border: 2px solid rgb(107, 114, 128);
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+              cursor: pointer;
+            }
+
+            input[type="range"]::-moz-range-thumb {
+              width: 32px;
+              height: 32px;
+              border-radius: 50%;
+              background: linear-gradient(to bottom, rgb(75, 85, 99), rgb(31, 41, 55));
+              border: 2px solid rgb(107, 114, 128);
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+              cursor: pointer;
+            }
+          `}</style>
         </div>
+
         <span className="text-orange-400 text-xs font-bold">B</span>
       </div>
-      <div className="text-center">
-        <span className="text-xs text-gray-400">
-          {position === 0 ? 'Full A' : position === 1 ? 'Full B' : `${(position * 100).toFixed(0)}%`}
+
+      {/* Position indicator */}
+      <div className="text-center mt-2">
+        <span className="text-xs text-gray-400 font-semibold">
+          {(position * 100).toFixed(0)}%
         </span>
       </div>
     </div>
