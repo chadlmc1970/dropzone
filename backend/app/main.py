@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.config import get_settings
-from backend.app.api import tracks, auth
+from backend.app.api import tracks, auth, playlists
 
 settings = get_settings()
 
@@ -26,6 +26,7 @@ app.add_middleware(
 # Include routers
 app.include_router(tracks.router, prefix="/api/tracks", tags=["tracks"])
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(playlists.router, prefix="/api/playlists", tags=["playlists"])
 
 @app.get("/")
 def root():

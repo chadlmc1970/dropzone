@@ -21,7 +21,7 @@ from backend.app.db.models import Base
 
 @pytest.fixture
 def test_db():
-    engine = create_engine("sqlite:///:memory:")
+    engine = create_engine("sqlite:///:memory:", connect_args={"check_same_thread": False})
     Base.metadata.create_all(engine)
     TestingSessionLocal = sessionmaker(bind=engine)
     db = TestingSessionLocal()

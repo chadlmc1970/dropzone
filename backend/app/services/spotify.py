@@ -48,3 +48,29 @@ class SpotifyService:
             })
 
         return formatted
+
+    def get_user_playlists(self, user_id: str) -> List[Dict[str, Any]]:
+        """Get user's Spotify playlists"""
+        playlists = self.sp.current_user_playlists()
+        return playlists['items']
+
+    def get_playlist(self, playlist_id: str) -> Dict[str, Any]:
+        """Get playlist details with tracks"""
+        playlist = self.sp.playlist(playlist_id)
+        return playlist
+
+    def create_playlist(
+        self,
+        user_id: str,
+        name: str,
+        description: str = None,
+        public: bool = True
+    ) -> Dict[str, Any]:
+        """Create new Spotify playlist for user"""
+        playlist = self.sp.user_playlist_create(
+            user_id,
+            name,
+            public=public,
+            description=description
+        )
+        return playlist
