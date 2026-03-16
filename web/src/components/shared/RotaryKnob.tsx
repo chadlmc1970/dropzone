@@ -8,7 +8,6 @@ interface RotaryKnobProps {
   label: string;
   color?: 'cyan' | 'orange' | 'purple';
   unit?: string;
-  defaultValue?: number;
 }
 
 const RotaryKnob: React.FC<RotaryKnobProps> = ({
