@@ -27,12 +27,15 @@ Transform the DropZone web UI from basic horizontal sliders to a professional DJ
 ### Component Refactoring Strategy
 
 **Phase 1: Fix Component Composition**
-- Refactor [Deck.tsx](../../web/src/components/Deck/Deck.tsx) to import and use [JogWheel.tsx](../../web/src/components/Deck/JogWheel.tsx)
-- Refactor [Mixer.tsx](../../web/src/components/Mixer/Mixer.tsx) to import and use:
-  - [ChannelStrip.tsx](../../web/src/components/Mixer/ChannelStrip.tsx)
-  - [Crossfader.tsx](../../web/src/components/Mixer/Crossfader.tsx)
-  - [EffectsRack.tsx](../../web/src/components/Mixer/EffectsRack.tsx)
-- Remove duplicate inline implementations
+- Refactor [Deck.tsx](../../web/src/components/Deck/Deck.tsx):
+  - Remove inline jog wheel (lines 62-69) and import/use [JogWheel.tsx](../../web/src/components/Deck/JogWheel.tsx)
+  - Remove inline waveform placeholder (lines 57-60) and import/use [Waveform.tsx](../../web/src/components/Deck/Waveform.tsx)
+  - Expand performance pads from 4 to 8 (4×2 grid)
+- Refactor [Mixer.tsx](../../web/src/components/Mixer/Mixer.tsx):
+  - Remove inline EQ knobs (lines 36-78, 86-128) and import/use [ChannelStrip.tsx](../../web/src/components/Mixer/ChannelStrip.tsx) × 2 (Deck A/B)
+  - Remove inline crossfader (lines 133-153) and import/use [Crossfader.tsx](../../web/src/components/Mixer/Crossfader.tsx)
+  - Remove inline effects buttons (lines 175-187) and import/use [EffectsRack.tsx](../../web/src/components/Mixer/EffectsRack.tsx)
+- All duplicate inline implementations must be removed
 
 **Phase 2: Create Shared Hardware Components**
 ```
@@ -77,10 +80,13 @@ interface RotaryKnobProps {
   max: number;             // Maximum value
   onChange: (value: number) => void;
   label: string;           // Display label
-  color?: string;          // Tailwind color (cyan/orange/purple)
+  color?: 'cyan' | 'orange' | 'purple';  // Brand color (default: 'purple')
   unit?: string;           // Display unit (dB, %, etc.)
+  defaultValue?: number;   // Initial value if value is undefined
 }
 ```
+
+**Note on Color Prop:** Use literal color values (e.g., `color="cyan"`) rather than dynamic Tailwind classes to ensure JIT compilation works. Component will map color string to full Tailwind class names internally.
 
 **Behavior:**
 - Click + drag circular motion to rotate
@@ -112,9 +118,10 @@ interface VerticalFaderProps {
 }
 ```
 
-**Implementation Options:**
-1. CSS-rotated `<input type="range">` with `transform: rotate(-90deg)`
-2. Custom div with mouse Y-tracking for more control
+**Implementation Approach (Recommended):**
+Use custom div with mouse Y-tracking for precise control and consistent styling across browsers.
+
+**Alternative:** CSS-rotated `<input type="range">` with `transform: rotate(-90deg)` works but has browser-specific styling issues (Chrome, Firefox, Safari handle range inputs differently). Custom div approach is more maintainable.
 
 **Visual Design:**
 - Track: 8px wide, `height` tall
@@ -133,9 +140,23 @@ interface VerticalFaderProps {
 ```typescript
 interface PerformancePadProps {
   label: string | number;  // Pad label (1-8)
-  active: boolean;         // Active state
+  active: boolean;         // Active state (hot cue loaded)
   onClick: () => void;
-  color: string;           // cyan or orange
+  color: 'cyan' | 'orange';  // Deck color
+  index: number;           // Pad index (0-7) for state management
+}
+```
+
+**State Management:**
+Performance pad active states will be added to Redux `decksSlice.ts`:
+```typescript
+// Add to DeckState interface
+hotCues: boolean[];  // Array of 8 booleans for pad active states
+
+// Add action
+toggleHotCue: (state, action: PayloadAction<{ deck: 'A' | 'B', index: number }>) => {
+  const deckState = action.payload.deck === 'A' ? state.deckA : state.deckB;
+  deckState.hotCues[action.payload.index] = !deckState.hotCues[action.payload.index];
 }
 ```
 
@@ -175,10 +196,26 @@ interface PerformancePadProps {
 - Shadows: `shadow-2xl shadow-black/70` for depth
 - Border: `border-4 border-gray-600`
 
-**Interaction:**
-- Outer ring touch: Temporary pitch bend (±8%)
-- Center platter drag: Scratch with inertia
-- Spin with momentum and decay
+**Interaction Zones:**
+Two distinct touch zones detected via mouse/touch position relative to center:
+
+1. **Outer Ring (radius > 100px from center):**
+   - Action: Temporary pitch bend (±8%)
+   - Behavior: Only active during touch/drag, returns to 0% on release
+   - Implementation: Calculate distance from center, if > 100px, trigger pitch bend based on rotation speed
+
+2. **Center Platter (radius ≤ 100px from center):**
+   - Action: Scratch with inertia
+   - Behavior: Drag to scratch, release continues with momentum decay
+   - Implementation: Track rotation angle, calculate velocity, apply decay factor
+
+**Zone Detection:**
+```typescript
+const distanceFromCenter = Math.sqrt(
+  Math.pow(mouseX - centerX, 2) + Math.pow(mouseY - centerY, 2)
+);
+const isOuterRing = distanceFromCenter > 100;  // pixels
+```
 
 ## Layout Specifications
 
@@ -319,41 +356,81 @@ shadow-2xl shadow-black/70
 - Rotary knobs: 60px diameter
 
 ### Tablet (768px - 1024px)
-- 2-column stacked layout (Deck A | Deck B, then Mixer below)
-- Reduced control sizes:
-  - Jog wheels: 180px
-  - Faders: 100px
-  - Knobs: 50px
+**Layout:** 2-column stacked
+```
+Row 1: [Deck A] [Deck B]
+Row 2: [Mixer (full width)]
+```
+
+**Tailwind Implementation:**
+```tsx
+<div className="grid grid-cols-1 lg:grid-cols-3 md:grid-cols-2 gap-6">
+  <div className="md:col-span-1">{/* Deck A */}</div>
+  <div className="md:col-span-1 lg:order-2">{/* Deck B */}</div>
+  <div className="md:col-span-2 lg:col-span-1 lg:order-2">{/* Mixer */}</div>
+</div>
+```
+
+**Reduced Control Sizes:**
+- Jog wheels: 180px (from 240px)
+- Vertical faders: 100px tall (from 120px)
+- Rotary knobs: 50px diameter (from 60px)
+- Performance pads: Maintain 4×2 grid, scale down to fit
 
 ### Mobile (<768px)
-- Show centered message card:
-  ```
-  "🎧 Desktop Browser Recommended
+**Component:** Create `web/src/components/MobileFallback/MobileFallback.tsx`
 
-  For the full DJ controller experience,
-  please open DropZone on a desktop or laptop.
+**Display:**
+- Centered card with desktop recommendation message
+- Basic playback controls only (play/pause per deck, master volume)
+- Link to desktop version with QR code (future enhancement)
 
-  [Basic Playback Controls]"
-  ```
-- Provide minimal play/pause/track load buttons
+**Conditional Rendering in DJController.tsx:**
+```tsx
+const isMobile = window.innerWidth < 768;
+
+return isMobile ? (
+  <MobileFallback />
+) : (
+  <div className="grid grid-cols-1 lg:grid-cols-3 ...">
+    {/* Full DJ controller */}
+  </div>
+);
+```
+
+**MobileFallback Controls:**
+- Deck A: Play/Pause button
+- Deck B: Play/Pause button
+- Master Volume: Horizontal slider
+- Message: "🎧 Desktop Browser Recommended - For the full DJ controller experience, please open DropZone on a desktop or laptop."
 
 ## Implementation Details
 
 ### Mouse Tracking for Rotary Knobs
 
 **Algorithm:**
-1. On mousedown: Start tracking, record initial mouse position
-2. On mousemove:
+1. On mousedown:
+   - Start tracking (`isDragging = true`)
+   - Record initial mouse position
+   - Add document-level mousemove and mouseup listeners
+
+2. On mousemove (if isDragging):
    - Calculate angle: `atan2(mouseY - centerY, mouseX - centerX)`
    - Convert angle to 0-270° range (leave 90° gap at bottom)
    - Map angle to value range: `value = min + (angle / 270) * (max - min)`
-   - Call onChange with new value
-3. On mouseup: Stop tracking
+   - Call onChange with clamped value
+
+3. On mouseup OR mouseleave (from document):
+   - Stop tracking (`isDragging = false`)
+   - Remove document-level listeners
+   - Persist final value
 
 **Edge Cases:**
-- Clamp values to min/max range
-- Handle angle wraparound at 0°/360°
-- Prevent NaN from division by zero
+- Clamp values to min/max range before calling onChange
+- Handle angle wraparound at 0°/360° by normalizing to [0, 2π]
+- Prevent NaN from division by zero (check `max !== min`)
+- Mouse leaves browser window during drag: Document-level mouseup listener catches this
+- Touch events: Use same algorithm with touchmove/touchend events
 
 ### State Management
 
@@ -473,29 +550,84 @@ shadow-2xl shadow-black/70
 ## Success Criteria
 
 ### Visual Quality
-- ✅ Rotary knobs look like DJ hardware (circular, 3D depth)
-- ✅ Vertical faders have proper track and handle styling
-- ✅ Jog wheels are large (240px), metallic, with rotation indicator
-- ✅ Performance pads have LED glow effect when active
-- ✅ Overall aesthetic matches "stylized DJ hardware"
+- [ ] Rotary knobs look like DJ hardware (circular, 3D depth)
+- [ ] Vertical faders have proper track and handle styling
+- [ ] Jog wheels are large (240px), metallic, with rotation indicator
+- [ ] Performance pads have LED glow effect when active
+- [ ] Overall aesthetic matches "stylized DJ hardware"
 
 ### Functionality
-- ✅ All controls respond smoothly to mouse input
-- ✅ Redux state updates correctly from UI interactions
-- ✅ UI reflects Redux state changes
-- ✅ No performance issues (60fps for animations)
+- [ ] All controls respond smoothly to mouse input
+- [ ] Redux state updates correctly from UI interactions
+- [ ] UI reflects Redux state changes
+- [ ] No performance issues (60fps for animations)
+- [ ] Jog wheel zone detection works (outer ring vs center platter)
+- [ ] Performance pads toggle active state (8 per deck)
 
 ### Code Quality
-- ✅ No duplicate inline implementations (use dedicated components)
-- ✅ Shared components (RotaryKnob, VerticalFader, PerformancePad) are reusable
-- ✅ Component props are typed with TypeScript interfaces
-- ✅ Code follows existing project patterns
+- [ ] No duplicate inline implementations (use dedicated components)
+- [ ] Shared components (RotaryKnob, VerticalFader, PerformancePad) are reusable
+- [ ] Component props are typed with TypeScript interfaces (see TypeScript Types section)
+- [ ] Code follows existing project patterns
+- [ ] Tailwind color classes use literal values (not dynamic interpolation)
 
 ### User Experience
-- ✅ Desktop users see professional DJ controller interface
-- ✅ Mobile users see helpful "desktop recommended" message
-- ✅ All controls are intuitive (no learning curve for DJ hardware users)
-- ✅ Visual feedback on all interactions (hover, active states)
+- [ ] Desktop users see professional DJ controller interface
+- [ ] Mobile users see helpful MobileFallback component with basic controls
+- [ ] All controls are intuitive (no learning curve for DJ hardware users)
+- [ ] Visual feedback on all interactions (hover, active states)
+
+## TypeScript Types
+
+**Existing Types (reference only, do not modify):**
+- `RootState` - Redux store type from `store/index.ts`
+- `DeckState` - Deck state interface from `store/decksSlice.ts`
+- `MixerState` - Mixer state interface from `store/mixerSlice.ts`
+
+**New Types to Add:**
+
+```typescript
+// In store/decksSlice.ts
+interface DeckState {
+  // ... existing fields
+  hotCues: boolean[];  // NEW: 8 hot cue active states
+}
+
+// In components/shared/RotaryKnob.tsx
+interface RotaryKnobProps {
+  value: number;
+  min: number;
+  max: number;
+  onChange: (value: number) => void;
+  label: string;
+  color?: 'cyan' | 'orange' | 'purple';
+  unit?: string;
+  defaultValue?: number;
+}
+
+// In components/shared/VerticalFader.tsx
+interface VerticalFaderProps {
+  value: number;
+  onChange: (value: number) => void;
+  label: string;
+  color?: 'cyan' | 'orange' | 'purple';
+  height?: number;
+}
+
+// In components/shared/PerformancePad.tsx
+interface PerformancePadProps {
+  label: string | number;
+  active: boolean;
+  onClick: () => void;
+  color: 'cyan' | 'orange';
+  index: number;
+}
+
+// In components/MobileFallback/MobileFallback.tsx
+interface MobileFallbackProps {
+  // No props needed - reads from Redux
+}
+```
 
 ## References
 
