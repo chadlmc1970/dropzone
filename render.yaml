@@ -52,8 +52,8 @@ services:
     startCommand: npm start
     healthCheckPath: /
     envVars:
-      - key: NEXT_PUBLIC_API_URL
-        value: https://dropzone-api.onrender.com
+      - key: VITE_API_URL
+        value: https://dropzone-api-bqyl.onrender.com
       - key: NEXT_PUBLIC_AUTH0_DOMAIN
         sync: false
       - key: NEXT_PUBLIC_AUTH0_CLIENT_ID
