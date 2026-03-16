@@ -48,7 +48,7 @@ services:
     rootDir: ./web
     region: ohio
     plan: free
-    buildCommand: npm ci && npm run build
+    buildCommand: npm install && npm run build
     startCommand: npm start
     healthCheckPath: /
     envVars:
