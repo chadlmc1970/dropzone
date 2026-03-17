@@ -7,9 +7,12 @@ import MobileFallback from '../MobileFallback/MobileFallback';
 
 const DJController: React.FC = () => {
   const mode = useSelector((state: RootState) => state.ui.mode);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    // Initialize mobile state on mount (client-side only)
+    setIsMobile(window.innerWidth < 768);
+
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
