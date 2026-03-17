@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import type { RootState } from '../../store';
 import Deck from '../Deck/Deck';
 import Mixer from '../Mixer/Mixer';
+import MobileFallback from '../MobileFallback/MobileFallback';
 
 const DJController: React.FC = () => {
   const mode = useSelector((state: RootState) => state.ui.mode);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Show mobile fallback on small screens
+  if (isMobile) {
+    return <MobileFallback />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 flex items-center justify-center p-4">
