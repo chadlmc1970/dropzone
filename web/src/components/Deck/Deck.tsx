@@ -1,7 +1,10 @@
 import React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '../../store';
-import { togglePlayPause } from '../../store/decksSlice';
+import { togglePlayPause, toggleHotCue } from '../../store/decksSlice';
+import JogWheel from './JogWheel';
+import Waveform from './Waveform';
+import PerformancePad from '../shared/PerformancePad';
 
 interface DeckProps {
   deck: 'A' | 'B';
@@ -15,6 +18,10 @@ const Deck: React.FC<DeckProps> = ({ deck }) => {
 
   const handlePlayPause = () => {
     dispatch(togglePlayPause(deck));
+  };
+
+  const handlePadClick = (index: number) => {
+    dispatch(toggleHotCue({ deck, index }));
   };
 
   const getDeckColor = () => (deck === 'A' ? 'cyan' : 'orange');
@@ -54,18 +61,24 @@ const Deck: React.FC<DeckProps> = ({ deck }) => {
         )}
       </div>
 
-      {/* Waveform Placeholder */}
-      <div className="bg-black rounded-lg h-24 mb-4 flex items-center justify-center border border-gray-700">
-        <span className="text-gray-400 text-xs font-semibold tracking-wider">WAVEFORM</span>
-      </div>
+      {/* Waveform */}
+      <Waveform
+        track={deckState.track}
+        position={deckState.position}
+        duration={deckState.track?.duration_ms ? deckState.track.duration_ms / 1000 : 0}
+        deck={deck}
+      />
 
-      {/* Jog Wheel Placeholder */}
+      {/* Jog Wheel */}
       <div className="flex justify-center mb-6">
-        <div className={`w-40 h-40 rounded-full bg-gradient-to-b from-gray-800 to-black border-4 border-${color}-500/30 flex items-center justify-center`}>
-          <div className={`w-32 h-32 rounded-full bg-black border-2 border-${color}-500/50 flex items-center justify-center`}>
-            <span className={`text-${color}-400 text-sm font-bold`}>JOG</span>
-          </div>
-        </div>
+        <JogWheel
+          deck={deck}
+          isPlaying={deckState.isPlaying}
+          onScratch={(delta) => {
+            // Handle scratch - could dispatch a scratch action here
+            console.log(`Deck ${deck} scratch:`, delta);
+          }}
+        />
       </div>
 
       {/* Transport Controls */}
@@ -84,15 +97,17 @@ const Deck: React.FC<DeckProps> = ({ deck }) => {
         </button>
       </div>
 
-      {/* Performance Pads */}
+      {/* Performance Pads - 4×2 Grid (8 pads) */}
       <div className="grid grid-cols-4 gap-2 mt-6">
-        {[1, 2, 3, 4].map((pad) => (
-          <button
-            key={pad}
-            className={`h-12 rounded bg-gray-800 hover:bg-${color}-600 border border-gray-700 transition-colors text-${color}-400 text-xs font-bold`}
-          >
-            {pad}
-          </button>
+        {Array.from({ length: 8 }, (_, i) => (
+          <PerformancePad
+            key={i}
+            label={i + 1}
+            active={deckState.hotCues[i]}
+            onClick={() => handlePadClick(i)}
+            color={color}
+            index={i}
+          />
         ))}
       </div>
     </div>
